@@ -1,1 +1,77 @@
+substitutions:
+  name: "syntek-multi-sensor"
+  location: "Office"
+  friendly_name: "Syntek Multi Sensor"
+  project: "Syntek Creations . Multi Sensor 01"
+  project_ver: "0.1"
+  temp_offset: "-5"
+  humidity_offset: "8"
+  temp_update_interval: "60s"
+  lux_update_interval: "15s"
+  pir_delay: "12s"
 
+
+esphome:
+  name: "${name}"
+  name_add_mac_suffix: true
+  friendly_name: "${friendly_name}"
+  project:
+    name: "${project}"
+    version: "${project_ver}"
+
+esp32:
+  board: esp32dev
+
+logger:
+
+api:
+  encryption:
+    key: "oHC9AYQpu7OY16YO74+wWywDs1uDaQWwhGEGo87+QgE="
+
+ota:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esphome-Web-A0B07C"
+    password: "Xgvur8wkHXjo"
+
+captive_portal:
+  
+i2c:
+     sda: 21
+     scl: 22
+     scan: true
+
+sensor:
+  - platform: sht4x
+    temperature:
+      name: "${location} Temperature"
+      filters:
+        offset: ${temp_offset}
+    humidity:
+      name: "${location} Humidity"
+      filters:
+        offset: ${humidity_offset}
+    address: 0x44
+    heater_max_duty: 0.0
+    update_interval: ${temp_update_interval}
+
+  - platform: bh1750
+    name: "${location} Illuminance"
+    address: 0x23
+    update_interval: ${lux_update_interval}
+  
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: 32
+      mode: INPUT_PULLDOWN
+    name: "${location} PIR"
+    id: pir_motion_sensor
+    device_class: motion
+    filters:
+      - delayed_off: ${pir_delay}
