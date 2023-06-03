@@ -3,7 +3,7 @@ substitutions:
   friendly_name: "MultiSensor"
   room: ""
   project_name: "Syntek Creations.MultiSensor (MS01)"
-  project_version: "0.1"
+  project_version: "0.2"
   temp_offset: "-7"
   humid_offset: "0"
   pir_delay_off: "10s"
@@ -14,8 +14,8 @@ substitutions:
 
 esphome:
   name: "${name}"
-  name_add_mac_suffix: false
-  friendly_name: "${friendly_name} - ${location}"
+  name_add_mac_suffix: true
+#  friendly_name: "${friendly_name} - ${location}"
   project:
     name: "${project_name}"
     version: "${project_version}"
@@ -35,9 +35,14 @@ api:
 ota:
 
 wifi:
+  fast_connect: false
   ap: {}
 
 captive_portal:
+
+dashboard_import:
+  package_import_url: github://SyntekCreations/MultiSernsor01/multisensor01-ha.yaml@main
+  import_full_config: false
     
 i2c:
      sda: 21
@@ -57,7 +62,6 @@ sensor:
     address: 0x44
     heater_max_duty: 0.0
     update_interval: 20s
-
   - platform: bh1750
     name: "Illuminance - ${room}"
     address: 0x23
@@ -73,7 +77,6 @@ binary_sensor:
     device_class: motion
     filters:
       - delayed_off: ${pir_delay_off}
-
   - platform: gpio
     name: "mmWave - ${room}"
     id: sen0395
@@ -81,7 +84,6 @@ binary_sensor:
     pin:
       number: GPIO23
       mode: INPUT_PULLDOWN
-
   - platform: template
     name: "Occupancy - ${room}"
     id: occupancy
@@ -98,7 +100,6 @@ binary_sensor:
       else {
         return id(occupancy).state;
       }
-
 
 light: 
   - platform: status_led
