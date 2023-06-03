@@ -23,6 +23,11 @@ esphome:
 esp32:
   board: esp32dev
 
+improv_serial:
+
+esp32_improv:
+  authorizer: none
+
 logger:
 
 api:
