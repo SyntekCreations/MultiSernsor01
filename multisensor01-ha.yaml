@@ -1,24 +1,21 @@
 substitutions:
-  name: "Syntek-Creations-MultiSensor01"
+  name: "syntek-creations-multisensor01"
   friendly_name: "MultiSensor"
   location: "Living Room"
-  project_name: ""
+  project_name: "Syntek Creations.MultiSensor (MS01)"
   project_version: "0.1"
-
-
   temp_offset: "-7"
   humid_offset: "0"
-
-
   pir_delay_off: "10s"
+  occupancy_delay_off: "10s"
+  factory_reset_disabled: "true"
+  uart_target_output_disabled: "true"
+  uart_presence_output_disabled: "true"
+
 
 esphome:
-  name: protopcb-1
-  friendly_name: ProtoPCB-1
-
-  esphome:
   name: "${name}"
-  friendly_name: "${friendly_name}"
+  friendly_name: "${friendly_name} - ${location}"
   name_add_mac_suffix: false
   project:
     name: "${project_name}"
@@ -34,6 +31,7 @@ api:
 ota:
 
 wifi:
+  ap: {}
 
 captive_portal:
     
@@ -47,11 +45,11 @@ sensor:
     temperature:
       name: "Temperature - ${location}"
       filters:
-      - offset: $(temp_offset)
+        offset: ${temp_offset}
     humidity:
       name: "Humidity - ${location}"
       filters:
-      - offset: $(humid_offset)
+        offset: ${humid_offset}
     address: 0x44
     heater_max_duty: 0.0
     update_interval: 20s
@@ -67,13 +65,40 @@ binary_sensor:
       number: 32
       mode: INPUT_PULLDOWN
     name: "PIR - ${location}"
-    id: pir_motion_sensor
+    id: pirsensor
     device_class: motion
     filters:
       - delayed_off: ${pir_delay_off}
+
+  - platform: gpio
+    name: "mmWave - ${location}"
+    id: sen0395
+    device_class: occupancy
+    pin:
+      number: GPIO23
+      mode: INPUT_PULLDOWN
+
+  - platform: template
+    name: "Occupancy - ${location}"
+    id: occupancy
+    device_class: occupancy
+    filters:
+      - delayed_off: ${occupancy_delay_off}
+    lambda: |-
+      if ( id(sen0395).state or id(pirsensor).state) {
+        return true;
+      } 
+      else if (id(sen0395).state == 0 and id(pirsensor).state == 0) {
+        return false;
+      } 
+      else {
+        return id(occupancy).state;
+      }
+
 
 light: 
   - platform: status_led
     name: "MS01 Status LED"
     pin: GPIO18
+    entity_category: config
 
