@@ -4,6 +4,12 @@ substitutions:
   location: "Living Room"
   project_name: ""
   project_version: "0.1"
+
+
+  temp_offset: "-7"
+  humid_offset: "0"
+
+
   pir_delay_off: "10s"
 
 esphome:
@@ -28,8 +34,6 @@ api:
 ota:
 
 wifi:
-  fast_connect: false
-  ap: {}
 
 captive_portal:
     
@@ -41,15 +45,19 @@ i2c:
 sensor:
   - platform: sht4x
     temperature:
-      name: "SHT40 Temperature"
-#      oversampling: 16x
+      name: "Temperature - ${location}"
+      filters:
+      - offset: $(temp_offset)
     humidity:
-      name: "SHT40 Humidity"
+      name: "Humidity - ${location}"
+      filters:
+      - offset: $(humid_offset)
     address: 0x44
+    heater_max_duty: 0.0
     update_interval: 20s
 
   - platform: bh1750
-    name: "BH1750 Illuminance"
+    name: "Illuminance - ${location}"
     address: 0x23
     update_interval: 20s
   
@@ -58,7 +66,7 @@ binary_sensor:
     pin:
       number: 32
       mode: INPUT_PULLDOWN
-    name: PIR
+    name: "PIR - ${location}"
     id: pir_motion_sensor
     device_class: motion
     filters:
