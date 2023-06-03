@@ -13,10 +13,14 @@ substitutions:
   uart_presence_output_disabled: "true"
 
 
+packages:
+  SyntekCreations.MultiSernsor01: github://SyntekCreations/MultiSernsor01/multisensor01-ha.yaml@main
+
+
 esphome:
   name: "${name}"
-  friendly_name: "${friendly_name} - ${location}"
   name_add_mac_suffix: false
+  friendly_name: "${friendly_name} - ${location}"
   project:
     name: "${project_name}"
     version: "${project_version}"
