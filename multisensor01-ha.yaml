@@ -47,11 +47,11 @@ i2c:
 sensor:
   - platform: sht4x
     temperature:
-      name: "Temperature - ${location}"
+      name: "Temperature - ${room}"
       filters:
         offset: ${temp_offset}
     humidity:
-      name: "Humidity - ${location}"
+      name: "Humidity - ${room}"
       filters:
         offset: ${humid_offset}
     address: 0x44
@@ -59,7 +59,7 @@ sensor:
     update_interval: 20s
 
   - platform: bh1750
-    name: "Illuminance - ${location}"
+    name: "Illuminance - ${room}"
     address: 0x23
     update_interval: 20s
   
@@ -68,14 +68,14 @@ binary_sensor:
     pin:
       number: 32
       mode: INPUT_PULLDOWN
-    name: "PIR - ${location}"
+    name: "PIR - ${room}"
     id: pirsensor
     device_class: motion
     filters:
       - delayed_off: ${pir_delay_off}
 
   - platform: gpio
-    name: "mmWave - ${location}"
+    name: "mmWave - ${room}"
     id: sen0395
     device_class: occupancy
     pin:
@@ -83,7 +83,7 @@ binary_sensor:
       mode: INPUT_PULLDOWN
 
   - platform: template
-    name: "Occupancy - ${location}"
+    name: "Occupancy - ${room}"
     id: occupancy
     device_class: occupancy
     filters:
@@ -102,7 +102,7 @@ binary_sensor:
 
 light: 
   - platform: status_led
-    name: "MS01 Status LED"
+    name: "MS01 Status LED - ${room}"
     pin: GPIO18
     entity_category: config
 
