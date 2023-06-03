@@ -1,7 +1,7 @@
 substitutions:
   name: "syntek-creations-multisensor01"
   friendly_name: "MultiSensor"
-  location: "Living Room"
+  room: ""
   project_name: "Syntek Creations.MultiSensor (MS01)"
   project_version: "0.1"
   temp_offset: "-7"
