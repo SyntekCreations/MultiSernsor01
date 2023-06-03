@@ -1,0 +1,41 @@
+substitutions:
+  name: "syntek-creations-multisensor01"
+  friendly_name: "MultiSensor"
+  room: ""
+  project_name: "Syntek Creations.MultiSensor (MS01)"
+  project_version: "0.2"
+
+esphome:
+  name: "${name}"
+  name_add_mac_suffix: true
+  friendly_name: "${friendly_name} - ${location}"
+  project:
+    name: "${project_name}"
+    version: "${project_version}"
+
+packages:
+  SyntekCreations.MultiSernsor01: github://SyntekCreations/MultiSernsor01/multisensor01-ha.yaml@main
+
+esp32:
+  board: esp32dev
+
+improv_serial:
+
+esp32_improv:
+  authorizer: none
+
+logger:
+
+api:
+
+ota:
+
+wifi:
+  fast_connect: false
+  ap: {}
+
+captive_portal:
+
+dashboard_import:
+  package_import_url: github://SyntekCreations/MultiSernsor01/multisensor01-ha.yaml@main
+  import_full_config: false

@@ -1,5 +1,5 @@
 substitutions:
-  name: "syntek-creations-multisensor01"
+  name: "syntek-multisensor01"
   friendly_name: "MultiSensor"
   room: ""
   project_name: "Syntek Creations.MultiSensor (MS01)"
@@ -62,6 +62,7 @@ sensor:
     address: 0x44
     heater_max_duty: 0.0
     update_interval: 20s
+
   - platform: bh1750
     name: "Illuminance - ${room}"
     address: 0x23
@@ -77,6 +78,7 @@ binary_sensor:
     device_class: motion
     filters:
       - delayed_off: ${pir_delay_off}
+
   - platform: gpio
     name: "mmWave - ${room}"
     id: sen0395
@@ -84,6 +86,7 @@ binary_sensor:
     pin:
       number: GPIO23
       mode: INPUT_PULLDOWN
+
   - platform: template
     name: "Occupancy - ${room}"
     id: occupancy
@@ -100,6 +103,7 @@ binary_sensor:
       else {
         return id(occupancy).state;
       }
+
 
 light: 
   - platform: status_led
