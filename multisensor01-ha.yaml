@@ -3,7 +3,7 @@ substitutions:
   friendly_name: "MultiSensor"
   room: ""
   project_name: "Syntek Creations.MultiSensor (MS01)"
-  project_version: "0.2"
+  project_version: "1.0"
   temp_offset: "-7"
   humid_offset: "0"
   pir_delay_off: "10s"
@@ -15,7 +15,7 @@ substitutions:
 esphome:
   name: "${name}"
   name_add_mac_suffix: true
-#  friendly_name: "${friendly_name} - ${location}"
+  friendly_name: "${friendly_name} - ${room}"
   project:
     name: "${project_name}"
     version: "${project_version}"
