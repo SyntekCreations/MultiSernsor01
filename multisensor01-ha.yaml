@@ -107,7 +107,8 @@ binary_sensor:
 light: 
   - platform: status_led
     name: "MS01 Status LED"
-    pin: GPIO18
-    inverted: true
+    pin:
+      number: GPIO18
+      inverted: true
     entity_category: config
 
