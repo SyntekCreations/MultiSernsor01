@@ -1,7 +1,6 @@
 substitutions:
   name: "syntek-multisensor01"
   friendly_name: "Syntek Creations MS01"
-  room: ""
   project_name: "Syntek Creations.MultiSensor (MS01)"
   project_version: "1.0"
 
@@ -9,6 +8,8 @@ esphome:
   name: "${name}"
   name_add_mac_suffix: true
   friendly_name: "${friendly_name}"
+  includes:
+    - leapmmw_sensor.h
   project:
     name: "${project_name}"
     version: "${project_version}"
