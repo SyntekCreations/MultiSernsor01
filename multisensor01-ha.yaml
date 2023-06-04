@@ -72,19 +72,19 @@ binary_sensor:
     pin:
       number: 32
       mode: INPUT_PULLDOWN
-    name: "PIR"
+    name: "PIR Detection"
     id: pirsensor
     device_class: motion
     filters:
       - delayed_off: ${pir_delay_off}
 
   - platform: gpio
+    pin:
+      number: 23
+      mode: INPUT_PULLDOWN
     name: "mmWave Detection"
     id: sen0395
     device_class: occupancy
-    pin:
-      number: GPIO23
-      mode: INPUT_PULLDOWN
 
   - platform: template
     name: "Occupancy Combined"
@@ -107,6 +107,8 @@ binary_sensor:
 light: 
   - platform: status_led
     name: "MS01 Status LED"
-    pin: GPIO18
+    pin: 
+      number: 18
+    inverted: true
     entity_category: config
 
