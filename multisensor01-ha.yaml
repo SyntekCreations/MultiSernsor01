@@ -1,7 +1,6 @@
 substitutions:
   name: "syntek-multisensor01"
-  friendly_name: "MultiSensor"
-  room: ""
+  friendly_name: "Syntek Creations MS01"
   project_name: "Syntek Creations.MultiSensor (MS01)"
   project_version: "1.0"
   temp_offset: "-7"
@@ -15,7 +14,7 @@ substitutions:
 esphome:
   name: "${name}"
   name_add_mac_suffix: true
-  friendly_name: "${friendly_name} - ${room}"
+  friendly_name: "${friendly_name}"
   project:
     name: "${project_name}"
     version: "${project_version}"
@@ -52,11 +51,11 @@ i2c:
 sensor:
   - platform: sht4x
     temperature:
-      name: "Temperature - ${room}"
+      name: "Temperature"
       filters:
         offset: ${temp_offset}
     humidity:
-      name: "Humidity - ${room}"
+      name: "Humidity"
       filters:
         offset: ${humid_offset}
     address: 0x44
@@ -64,7 +63,7 @@ sensor:
     update_interval: 20s
 
   - platform: bh1750
-    name: "Illuminance - ${room}"
+    name: "Illuminance"
     address: 0x23
     update_interval: 20s
   
@@ -73,14 +72,14 @@ binary_sensor:
     pin:
       number: 32
       mode: INPUT_PULLDOWN
-    name: "PIR - ${room}"
+    name: "PIR"
     id: pirsensor
     device_class: motion
     filters:
       - delayed_off: ${pir_delay_off}
 
   - platform: gpio
-    name: "mmWave - ${room}"
+    name: "mmWave Detection"
     id: sen0395
     device_class: occupancy
     pin:
@@ -88,7 +87,7 @@ binary_sensor:
       mode: INPUT_PULLDOWN
 
   - platform: template
-    name: "Occupancy - ${room}"
+    name: "Occupancy Combined"
     id: occupancy
     device_class: occupancy
     filters:
@@ -107,7 +106,7 @@ binary_sensor:
 
 light: 
   - platform: status_led
-    name: "MS01 Status LED - ${room}"
+    name: "MS01 Status LED"
     pin: GPIO18
     entity_category: config
 
