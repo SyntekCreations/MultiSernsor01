@@ -3,7 +3,7 @@ substitutions:
   friendly_name: "Syntek Creations MS01"
   project_name: "Syntek Creations.MultiSensor (MS01)"
   project_version: "1.1"
-  temp_offset: "-8"
+  temp_offset: "-6"
   humid_offset: "0"
   pir_delay_off: "10s"
   occupancy_delay_off: "10s"
