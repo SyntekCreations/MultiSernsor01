@@ -2,7 +2,7 @@ substitutions:
   name: "syntek-multisensor01"
   friendly_name: "Syntek Creations MS01"
   project_name: "Syntek Creations.MultiSensor (MS01)"
-  project_version: "1.0"
+  project_version: "1.1"
 
 esphome:
   name: "${name}"
