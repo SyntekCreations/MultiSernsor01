@@ -126,7 +126,7 @@ sensor:
     update_interval: 20s
 
 
-  switch:
+switch:
   - platform: template
     name: "mmW Sensor"
     id: "mmwave_sensor"
