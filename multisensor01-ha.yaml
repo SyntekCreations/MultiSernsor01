@@ -4,7 +4,7 @@ substitutions:
   device_name: "Temp-Name"
   project_name: "Syntek Creations.MultiSensor (MS01)"
   project_version: "1.0"
-  temp_offset: "-7"
+  temp_offset: "-8"
   humid_offset: "0"
   pir_delay_off: "10s"
   occupancy_delay_off: "10s"
@@ -39,10 +39,6 @@ wifi:
   ap: {}
 
 captive_portal:
-
-dashboard_import:
-  package_import_url: github://SyntekCreations/MultiSernsor01/multisensor01-ha.yaml@main
-  import_full_config: false
     
 i2c:
      sda: 21
@@ -55,25 +51,6 @@ uart:
   rx_pin: 16
   baud_rate: 115200
 
-sensor:
-  - platform: sht4x
-    temperature:
-      name: "Temperature"
-      filters:
-        offset: ${temp_offset}
-    humidity:
-      name: "Humidity"
-      filters:
-        offset: ${humid_offset}
-    address: 0x44
-    heater_max_duty: 0.0
-    update_interval: 20s
-
-  - platform: bh1750
-    name: "Illuminance"
-    address: 0x23
-    update_interval: 20s
-  
 light: 
   - platform: status_led
     name: "Status LED"
@@ -100,16 +77,6 @@ binary_sensor:
     pin:
       number: 23
       mode: INPUT_PULLDOWN
-    on_state:
-      - if:
-          condition:
-            binary_sensor.is_off: mmwave_detection
-          then:
-            - sensor.template.publish:
-                id: num_targets
-                state: 0
-            - lambda: |-
-                return clearTargets();
 
   - platform: template
     name: "Occupancy Combined"
@@ -127,3 +94,22 @@ binary_sensor:
       else {
         return id(occupancy).state;
       }
+
+sensor:
+  - platform: sht4x
+    temperature:
+      name: "Temperature"
+      filters:
+        offset: ${temp_offset}
+    humidity:
+      name: "Humidity"
+      filters:
+        offset: ${humid_offset}
+    address: 0x44
+    heater_max_duty: 0.0
+    update_interval: 20s
+
+  - platform: bh1750
+    name: "Illuminance"
+    address: 0x23
+    update_interval: 20s
