@@ -24,7 +24,7 @@ esp32:
   board: esp32dev
 
 dashboard_import:
-  package_import_url: github://SyntekCreations/MultiSernsor01/multisensor01-ha.yaml@main
+  package_import_url: github://SyntekCreations/MultiSernsor01/ms1-rev10-sen0395.yaml@main
   import_full_config: false
 
 improv_serial:
