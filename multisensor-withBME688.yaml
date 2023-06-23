@@ -1,0 +1,406 @@
+substitutions:
+  name: "syntek-multisensor01"
+  friendly_name: "Syntek Creations MS01"
+  project_name: "Syntek Creations.MultiSensor (MS01)"
+  project_version: "1.1"
+  #temp_offset: "-6"
+  #humid_offset: "10"
+  pir_delay_off: "10s"
+  occupancy_delay_off: "10s"
+  
+  hidden_ssid: "false"
+  factory_reset_disabled: "true"
+
+
+esphome:
+  name: "${name}"
+  name_add_mac_suffix: true
+  friendly_name: "${friendly_name}"
+  project:
+    name: "${project_name}"
+    version: "${project_version}"
+
+esp32:
+  board: esp32dev
+
+improv_serial:
+
+esp32_improv:
+  authorizer: none
+
+logger:
+
+api:
+
+ota:
+
+wifi:
+  fast_connect: false
+  ap: {}
+
+captive_portal:
+    
+i2c:
+  - id: "onboard"
+    sda: GPIO21
+    scl: GPIO22
+    scan: true
+
+  - id: "bme"
+    sda: GPIO25
+    scl: GPIO26
+    scan: true
+
+uart:
+  id: uart_bus
+  tx_pin: 17
+  rx_pin: 16
+  baud_rate: 115200
+  debug:
+    direction: BOTH
+    dummy_receiver: true
+    after:
+      delimiter: "\n"
+    sequence:
+      - lambda: UARTDebug::log_string(direction, bytes);
+
+bme680_bsec:
+    id: bme680_internal
+    i2c_id: bme
+    address: 0x77
+    temperature_offset: 0
+    iaq_mode: static
+    sample_rate: lp
+    state_save_interval: 6h
+
+light: 
+  - platform: status_led
+    name: "Status LED"
+    pin:
+      number: 18
+      inverted: true
+    entity_category: config
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: 32
+      mode: INPUT_PULLDOWN
+    name: "PIR Detection"
+    id: pirsensor
+    device_class: motion
+    filters:
+      - delayed_off: ${pir_delay_off}
+
+  - platform: gpio
+    name: mmWave Detection
+    id: mmwave_detection
+    device_class: motion
+    pin:
+      number: 23
+      mode: INPUT_PULLDOWN
+
+  - platform: template
+    name: "Occupancy Combined"
+    id: occupancy
+    device_class: occupancy
+    filters:
+      - delayed_off: ${occupancy_delay_off}
+    lambda: |-
+      if ( id(mmwave_detection).state or id(pirsensor).state) {
+        return true;
+      } 
+      else if (id(mmwave_detection).state == 0 and id(pirsensor).state == 0) {
+        return false;
+      } 
+      else {
+        return id(occupancy).state;
+      }
+
+sensor:
+  - platform: bh1750
+    i2c_id: onboard
+    name: "Illuminance"
+    address: 0x23
+    update_interval: 20s
+
+  - platform: bme680_bsec
+    bme680_bsec_id: bme688_internal
+    temperature:
+      name: "Temperature"
+      sample_rate: lp
+      filters:
+        - median
+    pressure:
+      name: "Pressure"
+      sample_rate: lp
+      filters:
+        - median
+    humidity:
+      name: "Humidity"
+      sample_rate: lp
+      filters:
+        - median
+    gas_resistance:
+      name: "Gas Resistance"
+      id: iaq
+      filters:
+        - median
+    iaq:
+      name: "IAQ (Air Quality)"
+      filters:
+        - median
+      id: iaq_filter
+    iaq_accuracy:
+      name: "IAQ Accuracy (Numeric)"
+    co2_equivalent:
+      name: "CO2 Equivalent"
+      filters:
+        - median
+    breath_voc_equivalent:
+      name: "Breath VOC Equivalent"
+      filters:
+        - median
+
+text_sensor:
+  - platform: bme680_bsec
+    iaq_accuracy:
+      name: "IAQ Accuracy"
+
+  - platform: template
+    name: "Air Quality (IAQ)"
+    icon: "mdi:checkbox-marked-circle-outline"
+    lambda: |-
+      if ( int(id(iaq_filter).state) <= 50) {
+        return {"Excellent"};
+      }
+      else if (int(id(iaq_filter).state) >= 51 && int(id(iaq_filter).state) <= 100) {
+        return {"Good"};
+      }
+      else if (int(id(iaq_filter).state) >= 101 && int(id(iaq_filter).state) <= 150) {
+        return {"Lightly polluted"};
+      }
+      else if (int(id(iaq_filter).state) >= 151 && int(id(iaq_filter).state) <= 200) {
+        return {"Moderately polluted"};
+      }
+      else if (int(id(iaq_filter).state) >= 201 && int(id(iaq_filter).state) <= 250) {
+        return {"Heavily polluted"};
+      }
+      else if (int(id(iaq_filter).state) >= 251 && int(id(iaq_filter).state) <= 350) {
+        return {"Severely polluted"};
+      }
+      else if (int(id(iaq_filter).state) >= 351) {
+        return {"Extremely polluted"};
+      }
+      else {
+        return {"error"};
+      }
+
+
+switch:
+  - platform: template
+    name: "mmW Sensor"
+    id: "mmwave_sensor"
+    entity_category: config
+    optimistic: true
+    restore_state: true
+    turn_on_action:
+      - uart.write: "sensorStart"
+      - delay: 1s
+    turn_off_action:
+      - uart.write: "sensorStop"
+      - delay: 1s
+
+  - platform: template
+    name: "mmW LED"
+    id: "mmwave_led"
+    entity_category: config
+    optimistic: true
+    restore_state: true
+    turn_on_action:
+      - switch.turn_off: mmwave_sensor
+      - delay: 1s
+      - uart.write: "setLedMode 1 0"
+      - delay: 1s
+      - uart.write: "saveConfig"
+      - delay: 3s
+      - switch.turn_on: mmwave_sensor
+    turn_off_action:
+      - switch.turn_off: mmwave_sensor
+      - delay: 1s
+      - uart.write: "setLedMode 1 1"
+      - delay: 1s
+      - uart.write: "saveConfig"
+      - delay: 3s
+      - switch.turn_on: mmwave_sensor
+
+  - platform: template
+    name: "uart_presence_output"
+    id: "uart_presence_output"
+    entity_category: config
+    internal: true
+    optimistic: true
+    restore_state: true
+    turn_on_action:
+      - switch.turn_off: mmwave_sensor
+      - delay: 1s
+      - uart.write: "setUartOutput 1 1"
+      - delay: 1s
+      - uart.write: "saveConfig"
+      - delay: 3s
+      - switch.turn_on: mmwave_sensor
+    turn_off_action:
+      - switch.turn_off: mmwave_sensor
+      - delay: 1s
+      - uart.write: "setUartOutput 1 0"
+      - delay: 1s
+      - uart.write: "saveConfig"
+      - delay: 3s
+      - switch.turn_on: mmwave_sensor
+
+  - platform: template
+    name: "uart_target_output"
+    id: "uart_target_output"
+    entity_category: config
+    internal: true
+    optimistic: true
+    restore_state: true
+    assumed_state: false
+    turn_on_action:
+      - switch.turn_off: mmwave_sensor
+      - delay: 1s
+      - uart.write: "setUartOutput 2 1 1 1"
+      - delay: 1s
+      - uart.write: "saveConfig"
+      - delay: 3s
+      - switch.turn_on: mmwave_sensor
+    turn_off_action:
+      - switch.turn_off: mmwave_sensor
+      - delay: 1s
+      - uart.write: "setUartOutput 2 0"
+      - delay: 1s
+      - uart.write: "saveConfig"
+      - delay: 3s
+      - switch.turn_on: mmwave_sensor
+
+number:
+  - platform: template
+    name: mmW Distance
+    id: mmwave_distance
+    entity_category: config
+    min_value: 0
+    max_value: 800
+    initial_value: 315
+    optimistic: true
+    step: 15
+    restore_value: true
+    unit_of_measurement: cm
+    mode: slider
+    set_action:
+      - switch.turn_off: mmwave_sensor
+      - delay: 1s
+      - uart.write: !lambda int cm = (int)ceil(x / 15.0);
+          std::string cms = "detRangeCfg -1 0 " + to_string(cm);
+          return std::vector<unsigned char>(cms.begin(), cms.end());
+      - delay: 1s
+      - uart.write: "saveCfg 0x45670123 0xCDEF89AB 0x956128C6 0xDF54AC89"
+      - delay: 1s
+      - switch.turn_on: mmwave_sensor
+
+  - platform: template
+    name: mmW Off Latency
+    id: mmwave_off_latency
+    entity_category: config
+    min_value: 1
+    max_value: 60
+    initial_value: 15
+    optimistic: true
+    step: 1
+    restore_value: true
+    unit_of_measurement: seconds
+    mode: slider
+    set_action:
+      - switch.turn_off: mmwave_sensor
+      - delay: 1s
+      - uart.write: !lambda |-
+          std::string mss = "setLatency " + to_string(id(mmwave_on_latency).state) + " " + to_string(id(mmwave_off_latency).state);
+          return std::vector<unsigned char>(mss.begin(), mss.end());
+      - delay: 1s
+      - uart.write: "saveCfg 0x45670123 0xCDEF89AB 0x956128C6 0xDF54AC89"
+      - delay: 1s
+      - switch.turn_on: mmwave_sensor
+
+  - platform: template
+    name: mmW On Latency
+    id: mmwave_on_latency
+    entity_category: config
+    min_value: 0
+    max_value: 60
+    initial_value: 0
+    optimistic: true
+    step: 0.5
+    restore_value: true
+    unit_of_measurement: seconds
+    mode: slider
+    set_action:
+      - switch.turn_off: mmwave_sensor
+      - delay: 1s
+      - uart.write: !lambda |-
+          std::string mss = "setLatency " + to_string(id(mmwave_on_latency).state) + " " + to_string(id(mmwave_off_latency).state);
+          return std::vector<unsigned char>(mss.begin(), mss.end());
+      - delay: 1s
+      - uart.write: "saveCfg 0x45670123 0xCDEF89AB 0x956128C6 0xDF54AC89"
+      - delay: 1s
+      - switch.turn_on: mmwave_sensor
+
+  - platform: template
+    name: mmW Sensitivity
+    id: mmwave_sensitivity
+    entity_category: config
+    min_value: 0
+    max_value: 9
+    initial_value: 7
+    optimistic: true
+    step: 1
+    restore_value: true
+    set_action:
+      - switch.turn_off: mmwave_sensor
+      - delay: 1s
+      - uart.write:
+          !lambda std::string mss = "setSensitivity " + to_string((int)x);
+          return std::vector<unsigned char>(mss.begin(), mss.end());
+      - delay: 1s
+      - uart.write: "saveConfig"
+      - delay: 1s
+      - switch.turn_on: mmwave_sensor
+
+button:
+  - platform: restart
+    name: Restart_internal
+    id: restart_internal
+    entity_category: config 
+    internal: true
+  - platform: template
+    name: "Restart mmWave Sensor"
+    id: "restart_mmwave"
+    entity_category: config
+    internal: true
+    on_press:
+      - uart.write: "resetSystem"
+  - platform: template
+    name: Restart MultiSensor
+    entity_category: config
+    on_press:
+      - button.press: restart_mmwave
+      - button.press: restart_internal
+  - platform: template
+    name: "mmW Default Settings"
+    internal: true
+    entity_category: config
+    on_press:
+      - switch.turn_off: mmwave_sensor
+      - delay: 1s
+      - uart.write: "resetCfg"
+      - delay: 3s
+      - switch.turn_on: mmwave_sensor
+  
