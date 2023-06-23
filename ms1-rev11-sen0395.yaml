@@ -23,6 +23,10 @@ esphome:
 esp32:
   board: esp32dev
 
+dashboard_import:
+  package_import_url: github://SyntekCreations/MultiSernsor01/ms1-rev11-sen0395.yaml@main
+  import_full_config: false
+
 improv_serial:
 
 esp32_improv:
@@ -65,7 +69,7 @@ uart:
       - lambda: UARTDebug::log_string(direction, bytes);
 
 bme680_bsec:
-    id: bme680_internal
+    id: bme688_internal
     i2c_id: bme
     address: 0x77
     temperature_offset: 0
@@ -141,18 +145,18 @@ sensor:
       sample_rate: lp
       filters:
         - median
-    gas_resistance:
-      name: "Gas Resistance"
-      id: iaq
-      filters:
-        - median
+#    gas_resistance:
+#      name: "Gas Resistance"
+#      id: iaq
+#      filters:
+#        - median
     iaq:
-      name: "IAQ (Air Quality)"
+      name: "Air Quality (IAQ Numeric)"
       filters:
         - median
       id: iaq_filter
-    iaq_accuracy:
-      name: "IAQ Accuracy (Numeric)"
+#    iaq_accuracy:
+#      name: "Air Quality (Accuracy Numeric)"
     co2_equivalent:
       name: "CO2 Equivalent"
       filters:
@@ -165,7 +169,7 @@ sensor:
 text_sensor:
   - platform: bme680_bsec
     iaq_accuracy:
-      name: "IAQ Accuracy"
+      name: "Air Quality Accuracy"
 
   - platform: template
     name: "Air Quality (IAQ)"
