@@ -71,7 +71,7 @@ uart:
 bme680_bsec:
     id: bme688_internal
     i2c_id: bme
-    address: 0x77
+    address: 0x76
     temperature_offset: 0
     iaq_mode: static
     sample_rate: lp
