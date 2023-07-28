@@ -45,14 +45,9 @@ wifi:
 captive_portal:
     
 i2c:
-  - id: "onboard"
-    sda: GPIO21
-    scl: GPIO22
-    scan: true
-
-  - id: "bme"
-    sda: GPIO25
-    scl: GPIO26
+  - id: "daughter"
+    sda: GPIO14
+    scl: GPIO13
     scan: true
 
 uart:
@@ -70,7 +65,7 @@ uart:
 
 bme680_bsec:
     id: bme688_internal
-    i2c_id: bme
+    i2c_id: daughter
     address: 0x76
     temperature_offset: 0
     iaq_mode: static
@@ -123,7 +118,7 @@ binary_sensor:
 
 sensor:
   - platform: bh1750
-    i2c_id: onboard
+    i2c_id: daughter
     name: "Illuminance"
     address: 0x23
     update_interval: 20s
