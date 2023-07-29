@@ -46,13 +46,13 @@ captive_portal:
 
 i2c:
   - id: "daughter_bh1750"
-    sda: GPIO4
-    scl: GPIO13
+    sda: 4
+    scl: 13
     scan: true
 
   - id: "daughter_bme"
-    sda: GPIO33
-    scl: GPIO27
+    sda: 33
+    scl: 27
     scan: true
 
 uart:
